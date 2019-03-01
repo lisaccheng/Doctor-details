@@ -44,36 +44,28 @@ FROM
                             Patient_ID, 
                             Doc_Num, 
                             Reg_Date, 
-
                         FROM    DB.Doc_database 
                     ) A2 
                 ON A1.Doc_Num = A2.Doc_Num 
-
                 WHERE   A2.Patient_ID IN (SELECT Patient_ID FROM DB.population) 
-
                 QUALIFY Row_Number() Over(PARTITION BY A1.Doc_Num ORDER BY  A1.Start_date DESC) = 1  
             ) t01 
             ON t00.Doc_Num = t01.Doc_Num            
 
             LEFT JOIN ( 
-
             SELECT 
                 Doc_Num, 
                 Trim(Frst_Nm) || ' ' || Trim(Othr_Gvn_Nm) || ' ' || Trim(Srnm) AS Full_Name, 
                 Trim((Brth_Day)(Format'99')) || '/' || Trim((Brth_Mnth)(Format'99')) || '/' || Trim(Brth_Yr) AS DOB, 
                 Mtchd_ID 
-
             FROM DB.Match_Data 
             ) t02 
             ON t00.Member_Num = t02.Doc_Num 
-
- 
 
             WHERE t00.Role_End_Date IS NULL --null means current 
             AND   t00.Role_Type IN ('PD') --Primary Doctor 
             AND   t02.Mtchd_ID IS NOT NULL  
             AND   t02.Mtchd_ID <> 0 
-
             QUALIFY Row_Number() Over (PARTITION BY Patient_ID, Doctor_ID ORDER BY t00.Role_Start_Date  DESC)=1 
             ) a 
 
@@ -100,8 +92,6 @@ SELECT
     , Doctor_DOB  
 
 FROM            vt_doctor AS pop 
-
- 
 
 LEFT JOIN       DB.Clnt_Key  AS t00 
 ON              pop.Doctor_ID=Cast(t00.Client_Val_Key AS DECIMAL(12,0)) 
